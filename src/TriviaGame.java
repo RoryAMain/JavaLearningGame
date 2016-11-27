@@ -51,14 +51,14 @@ public class TriviaGame {
 		currentAnswer = "";
 	}
 	
-	public void answerGiven()
+	public void answerGiven(String playerAnswer)
 	{
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
 		currentAnswer = currentTile.getAnswer();
+		if(playerAnswer.equals(currentAnswer))
+		{
+			System.out.println("\nCorrect Answer!\n");
+			givePoints();
+		}
 		//nextTurn();
 	}
 	
@@ -166,8 +166,11 @@ public class TriviaGame {
 		int y = reader2.nextInt();
 		theGame.questionChosen(y,x);
 		theGame.theGameBoard.displayBoard();
-		theGame.answerGiven();
-		theGame.givePoints();
+		System.out.println("Current question: \n" + theGame.currentQuestion + "\n");
+		String tempAnswer;
+		System.out.println("\nInput answer: \n");
+		tempAnswer = reader2.next();
+		theGame.answerGiven(tempAnswer);
 		theGame.nextTurn();
 		theGame.testGUI();
 		}
