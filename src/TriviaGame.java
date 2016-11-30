@@ -89,7 +89,23 @@ public class TriviaGame {
 			playerList.get(currentPlayer).addToTotal(currentTile.getPoints());
 	}
 	
+	public boolean getGameOver()
+	{
+		return gameOver;
+	}
 	
+	public String getCurrentPlayerScore()
+	{
+		return(Integer.toString(playerList.get(currentPlayer).getPointTotal()));
+	}
+	
+	public String getCurrentPlayer()
+	{
+		return Integer.toString(currentPlayer);
+	}
+	
+	
+	public ArrayList<String> topicNames;
 	/////////////////////////////////////////////////////////////////////////////////////////////
 	
 	
@@ -137,6 +153,8 @@ public class TriviaGame {
 			TriviaPlayer newPlayer = new TriviaPlayer();
 			playerList.add(newPlayer);
 		}
+		
+		topicNames = app.topicNames;
 	}
 	
 	
@@ -151,9 +169,10 @@ public class TriviaGame {
 		}
 	}
 	
-	
+	/*
 	public static void main(String[] args)
 	{
+		
 		TriviaGame theGame = new TriviaGame();
 		theGame.initializeGame();
 		theGame.testGUI();
@@ -176,6 +195,6 @@ public class TriviaGame {
 		}
 		
 		System.out.println(theGame.whoIsWinning() + " wins!");
-	}
+	}*/
 	
 }

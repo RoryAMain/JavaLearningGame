@@ -7,6 +7,9 @@ import java.util.*;
  * @author sqlitetutorial.net
  */
 public class SQLManager {
+	
+	public ArrayList<String> topicNames;
+	
 	private Connection connect() {
 		
         // SQLite connection string
@@ -83,7 +86,7 @@ public class SQLManager {
     	System.out.println("How many topics would you like to use?");
 
     	
-    	int numberOfTopics = 1;;
+    	int numberOfTopics = 1;
     	Scanner reader = new Scanner(System.in);
     	boolean correctNumber = true;
     	int topicCount = maxTopics();
@@ -121,6 +124,8 @@ public class SQLManager {
     		topicsChosen.add(tempInput);
     	}
     	
+    	topicNames = topicsChosen;
+    	
     	ResultSet tempSet;
     	ArrayList<ResultSet> topicResults = new ArrayList<ResultSet>();
     	for(int y =0;y < topicsChosen.size();y++)
@@ -130,6 +135,7 @@ public class SQLManager {
     		topicResults.add(tempSet);
     	}
     	//reader.close();
+    	
     	return topicResults;
     	
     }
