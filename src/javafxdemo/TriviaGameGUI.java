@@ -36,9 +36,9 @@ public class TriviaGameGUI {
 	
 	private String correctAnswerString;
 	public boolean buttonPushed;
-	public int buttonX;
-	public int buttonY;
+	public int currentButtonId;
 	public boolean questionAnswered;
+	public int buttonCounter = 0;
 	
 	public void setCorrectAnswer(String answerIn)
 	{
@@ -115,11 +115,11 @@ public class TriviaGameGUI {
 		thebuttons.add(new Button("100"));
 		thebuttons.add(new Button("200"));
 		thebuttons.add(new Button("300"));
-		thebuttons.add(new Button("400"));
-		thebuttons.add(new Button("500"));
 		
-		for(int i = 0; i < 5; i++){
+		for(int i = 0; i < 3; i++){
 			thebuttons.get(i).setFont(new Font(25));
+			thebuttons.get(i).setId(Integer.toString(buttonCounter));
+			buttonCounter++;
 		}
 		return thebuttons;
 	}
@@ -127,7 +127,7 @@ public class TriviaGameGUI {
 	public void createButtons(ArrayList<ArrayList <Button>> buttons, GridPane gridpane, Stage thestage){
 		for(int i = 0; i < getCategoryNum(); i ++){
 			buttons.add(makeButtons());
-			for(int j = 0; j < 5; j++)
+			for(int j = 0; j < 3; j++)
 			{
 				GridPane.setHalignment(buttons.get(i).get(j), HPos.CENTER);
 				gridpane.add(buttons.get(i).get(j), i, j+1);
@@ -140,6 +140,7 @@ public class TriviaGameGUI {
 						////Stuff Rory Changed////
 						buttonPushed = true;
 						questionAnswered = false;
+						currentButtonId = Integer.parseInt(btn.getId());
 						//////////////////////////////
 						
 						btn.setDisable(true);

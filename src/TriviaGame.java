@@ -183,7 +183,8 @@ public class TriviaGame {
 		int x = reader2.nextInt();
 		System.out.println("Choose Y:");
 		int y = reader2.nextInt();
-		theGame.questionChosen(y,x);
+		//theGame.questionChosen(y,x);
+		theGame.questionChosen(x, y);
 		theGame.theGameBoard.displayBoard();
 		System.out.println("Current question: \n" + theGame.currentQuestion + "\n");
 		String tempAnswer;

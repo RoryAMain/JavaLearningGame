@@ -33,8 +33,8 @@ public class TriviaBoard {
 		{
 			for(int y = 0; y < outerBoard.get(x).size();y++)
 			{
-				//System.out.print(outerBoard.get(y).get(x).displayTile() + "   ");
-				System.out.print(outerBoard.get(x).get(y).displayTile() + "   ");
+				System.out.print(outerBoard.get(y).get(x).displayTile() + "   ");
+				//System.out.print(outerBoard.get(x).get(y).displayTile() + "   ");
 
 			}
 			System.out.println();

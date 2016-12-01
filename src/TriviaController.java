@@ -29,7 +29,10 @@ public class TriviaController {
 			}
 			
 			//Tell the model which question was chosen.
-			theModel.questionChosen(theView.buttonY, theView.buttonX);
+			int currentButton = theView.currentButtonId;
+			int currentX = currentButton/3;
+			int currentY = currentButton%3;
+			theModel.questionChosen(currentX,currentY);
 			//Actual order of x and y may change.
 			
 			//I haven't gotten X and Y to return values yet, I still need to work on that.
