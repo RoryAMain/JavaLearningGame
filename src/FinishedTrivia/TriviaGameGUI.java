@@ -1,209 +1,535 @@
-import java.util.*;
-public class TriviaGame {
+
+
+import java.util.ArrayList;
+
+
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+import javafx.event.EventHandler;
+import javafx.geometry.HPos;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+
+public class TriviaGameGUI {
+	StackPane root;
+	private Label playerTurn;
+	private Label playerScore;
+	private static ArrayList<String> categoryNames;
+	private String answerString;
+	private static int numberOfTopics = 0;
+	private int topicNumber = 0;
+	private static int playerCount = 0;
+	private ArrayList<Button> theTopics;
+	private ArrayList<Button> players;
 	
-	private int playerCount = 0;
-	private int currentPlayer = 0;
-	private TriviaBoard theGameBoard = new TriviaBoard();
-	private TriviaTile currentTile;
-	private String currentQuestion;
-	private String currentAnswer;
-	private ArrayList<TriviaPlayer> playerList = new ArrayList<TriviaPlayer>();
-	private boolean gameOver = false;
-	private static SQLManager app = new SQLManager();
+	/////Stuff Rory Changed////
 	
-	////////////Methods to be called from the GUI//////////////
+	public boolean buttonPushed;
+	public int currentButtonId;
+	public boolean questionAnswered;
+	public int buttonCounter = 0;
 	
-	public String getCurrentQuestion()
-	{
-		return currentQuestion;
+	//////////////////////////
+	
+	public ArrayList<String> getAllTopicNames(){
+		return TriviaGlue.getAllTopicNames();
 	}
 	
-	public String getCurrentAnswer()
-	{
-		return currentAnswer;
+	public static int getNumberOfTopics(){
+		return numberOfTopics;
 	}
 	
-	public String whoIsWinning()
+	public void decrementTopic(){
+		topicNumber--;
+	}
+	
+	public static ArrayList<String> getCategoryName(){
+		return categoryNames;
+	}
+	
+	public static int getPlayerCount(){
+		return playerCount;
+	}
+	
+	public String getPlayerTurn(){
+		return TriviaGlue.getPlayerTurn();
+	}
+	
+	public String getPlayerScore(){
+		return TriviaGlue.getPlayerScore();
+	}
+	public int getCategoryNum(){
+		return categoryNames.size();
+	}
+	
+	public String getQuestion(){
+		return TriviaGlue.getQuestion();
+	}
+	
+	public void retrieveAnswer(String inanswer){
+		answerString = inanswer;
+	}
+	
+	public String getAnswer(){
+		return answerString;
+	}
+	
+	public String getMessage(){
+		return TriviaGlue.answerChecking();
+	}
+
+	public void updateScore(){
+		playerScore.setText("Score: " + getPlayerScore());
+	}
+	
+	public void updatePlayer(){
+		playerTurn.setText("Player " + getPlayerTurn());
+		playerScore.setText("Score: " + getPlayerScore());
+	}
+	
+	public String getWinner(){
+		return TriviaGlue.getWinner();
+	}
+	
+	public String getWinningScore(){
+		return TriviaGlue.getWinnerScore();
+	}
+	
+	public ArrayList<Integer> getAllScores(){
+		return TriviaGlue.getAllScores();
+	}
+	
+	public void createLabels(ArrayList<Label> catArr, GridPane gridpane){
+	    for(int i = 0; i < getCategoryNum(); i++)
+	    {
+	    	catArr.add(new Label(categoryNames.get(i)));
+	    	catArr.get(i).setFont(Font.font("Verdana",FontWeight.BOLD, 20));
+	    	GridPane.setHalignment(catArr.get(i), HPos.CENTER);
+	    	gridpane.add(catArr.get(i), i, 0);
+	    	ColumnConstraints column = new ColumnConstraints(200);
+	        gridpane.getColumnConstraints().add(column);
+	    }
+	}
+	
+	public ArrayList<Button> makeButtons()
 	{
-		int bestScore = 0;
-		int bestPlayer = 0;
-		for (int y = 0; y<playerCount;y++)
-		{
-			int tempScore = playerList.get(y).getPointTotal();
-			if(tempScore > bestScore)
+		ArrayList<Button> thebuttons = new ArrayList<Button>();
+		thebuttons.add(new Button("100"));
+		thebuttons.add(new Button("200"));
+		thebuttons.add(new Button("300"));
+		
+		for(int i = 0; i < 3; i++){
+			thebuttons.get(i).setFont(new Font(25));
+			thebuttons.get(i).setId(Integer.toString(buttonCounter));
+			buttonCounter++;
+		}
+		return thebuttons;
+	}
+	
+	public void createButtons(ArrayList<ArrayList <Button>> buttons, GridPane gridpane, Stage thestage){
+		for(int i = 0; i < getCategoryNum(); i ++){
+			buttons.add(makeButtons());
+			for(int j = 0; j < 3; j++)
 			{
-				bestScore = tempScore;
-				bestPlayer = y+1;
+				GridPane.setHalignment(buttons.get(i).get(j), HPos.CENTER);
+				gridpane.add(buttons.get(i).get(j), i, j+1);
+				
+				Button btn = buttons.get(i).get(j);
+				buttons.get(i).get(j).addEventFilter(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
+					@Override
+					public void handle(MouseEvent mouseEvent) {
+						
+						////Stuff Rory Changed////
+						buttonPushed = true;
+						questionAnswered = false;
+						currentButtonId = Integer.parseInt(btn.getId());
+						//////////////////////////////
+						
+						btn.setDisable(true);
+						Stage questionStage = new Stage();
+						questionStage.initStyle(StageStyle.UNDECORATED);
+						questionStage.setTitle("Question");
+						questionStage.initModality(Modality.APPLICATION_MODAL);
+						questionStage.initOwner(thestage);
+		                VBox questionVBox = new VBox(20);
+		                questionVBox.setPadding(new Insets(10, 50, 50, 50));
+                
+		                questionScreen(questionVBox, questionStage, thestage);
+		                
+		                Scene questionScene = new Scene(questionVBox, 500, 300);
+		                questionStage.setScene(questionScene);
+		                questionStage.show();
+					}
+				});
 			}
 		}
-		
-		return "Player " + bestPlayer;
 	}
 	
-	public String winningScore()
-	{
-		int bestScore = 0;
-		for (int y = 0; y<playerCount;y++)
+	public void questionScreen(VBox secondScreen, Stage thestage, Stage mainstage){
+		Text question = new Text(getQuestion());
+		question.setFont(new Font(20));
+		TextField answer = new TextField();
+		answer.setPromptText("Enter your answer.");
+		Label message = new Label("");
+		message.setFont(new Font(20));
+		
+		 Button close = new Button("Close");
+		 close.setTranslateX(350);
+		 close.alignmentProperty().set(Pos.BOTTOM_RIGHT);
+	     close.addEventFilter(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
+				@Override
+				public void handle(MouseEvent mouseEvent) {
+					updatePlayer();
+					thestage.close();
+					if(TriviaGlue.gameOver() == true){
+		            	winScreen(mainstage);
+		            }
+				}
+			});
+	        
+		Button submit = new Button("Submit");
+        submit.addEventFilter(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent mouseEvent) {
+				if ((answer.getText() != null && !answer.getText().isEmpty())) {
+					submit.setDisable(true);
+		            retrieveAnswer(answer.getText());
+		            /////Stuff Rory Changed/////
+		            
+		            buttonPushed = false;
+		            questionAnswered = true;
+		            
+		            /////////////////////
+		            message.setText(getMessage());
+		            updateScore();
+		            secondScreen.getChildren().add(close);
+		        } else {
+		            message.setText("You have not answered the question.");
+		        }
+			}
+		});
+      
+		secondScreen.getChildren().add(question);
+		secondScreen.getChildren().add(answer);
+		secondScreen.getChildren().add(submit);
+		secondScreen.getChildren().add(message);
+	}
+	
+	public void winScreen(Stage thestage){
+		Stage winStage = new Stage();
+		winStage.setTitle("Game Over");
+		VBox winVBox = new VBox(20);
+        winVBox.setPadding(new Insets(10, 50, 50, 50));
+        
+		Label winner = new Label("The winner is: " + getWinner());
+		Label winnerScore = new Label(getWinningScore());
+		winner.setFont(new Font(30));
+		winner.setTranslateY(-350);
+		winnerScore.setFont(new Font(30));
+		winnerScore.setTranslateY(-300);
+		
+		int yValue = -300;
+		ArrayList<Text> scoreList = new ArrayList<Text>();
+		for(int i = 0; i < getAllScores().size(); i++)
 		{
-			int tempScore = playerList.get(y).getPointTotal();
-			if(tempScore > bestScore)
-			{
-				bestScore = tempScore;
+			scoreList.add(new Text("Player " + (i+1) + ", Score: " + getAllScores().get(i)));
+			scoreList.get(i).setFont(new Font(20));
+			yValue += 50;
+			scoreList.get(i).setTranslateY(yValue);
+		}
+		
+		Button backToTitle = new Button("Title Screen");
+		backToTitle.setTranslateX(600);
+		backToTitle.setTranslateY(350);
+		backToTitle.addEventFilter(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent mouseEvent) {
+				winStage.close();
+				LearnJavaGame newGame = new LearnJavaGame();
+				newGame.start(thestage);
+			}
+		});
+		
+		root = new StackPane();
+		root.getChildren().add(winner);
+		root.getChildren().add(winnerScore);
+		root.getChildren().add(backToTitle);
+		for(int i = 0; i < scoreList.size(); i++){
+			root.getChildren().add(scoreList.get(i));
+		}
+		
+		Scene winningScene = new Scene(root, 1366, 768);
+        winStage.setScene(winningScene);
+        winStage.show();
+	}
+	
+	//---------------------------------------------------
+	//	Disable and Enable methods
+	//		The purpose of these methods are for error
+	//		checking so that buttons in the opening
+	//		screen are not pushed early or late
+	//---------------------------------------------------
+	
+	public void disableTheTopics(){
+		for(int i = 0; i <theTopics.size(); i++){
+			if(theTopics.get(i).isDisabled() == false){
+				theTopics.get(i).setDisable(true);
 			}
 		}
+	}
+	
+	public void disablePlayers(){
+		for(int i = 0; i <players.size(); i++){
+			if(players.get(i).isDisabled() == false){
+				players.get(i).setDisable(true);
+			}
+		}
+	}
+	
+	public void enableTheTopics(){
+		for(int i = 0; i <theTopics.size(); i++){
+				theTopics.get(i).setDisable(false);
+		}
+	}
+	
+	public void enablePlayers(){
+		for(int i = 0; i <players.size(); i++){
+				players.get(i).setDisable(false);
+		}
+	}
+
+	//---------------------------------------------------
+	//	Opening Screen
+	//		The opening screen is used to initialize
+	//		the gameboard before gameplay starts.
+	//---------------------------------------------------
+	public void openingScreen(Stage thestage){
+		Label info = new Label("Here is a list of all the topics: ");
+		info.setFont(new Font(30));
+		info.setTranslateY(-350);
+		String stringList = "";
+		for(int i = 0; i <getAllTopicNames().size(); i++){
+			if(stringList == "")
+				stringList = getAllTopicNames().get(i);
+			else
+				stringList = stringList + ", " + getAllTopicNames().get(i);
+		}
+		Label list = new Label(stringList);
+		list.setFont(new Font(25));
+		list.setTranslateY(-300);
 		
-		return "Score: " + bestScore;
-	}
-	
-	public ArrayList<Integer> getAllScores()
-	{
-		ArrayList<Integer> allScores = new ArrayList<Integer>();
+		Label prompt = new Label("How many topics would you like to use?");
+		prompt.setFont(new Font(30));
+		prompt.setTranslateY(-250);
 		
-		for (int y = 0; y<playerCount;y++)
-		{
-			allScores.add(playerList.get(y).getPointTotal());
-		}
-		return allScores;
-	}
-	
-	//////////////////////////////////////////////////////////
-	
-	///////Methods to be called from Controller////////////////
-	
-	public void questionChosen(int x, int y)
-	{
-		theGameBoard.chooseTile(x,y);
-		currentTile = theGameBoard.getTile(x, y);
-		currentQuestion = currentTile.getQuestion();
-		currentAnswer = "";
-	}
-	
-	public Boolean answerGiven(String playerAnswer)
-	{
-		currentAnswer = currentTile.getAnswer();
-		if(playerAnswer.equals(currentAnswer))
-		{
-			//System.out.println("\nCorrect Answer!\n");
-			givePoints();
-			nextTurn();
-			return true;
-		}
-		else{
-			nextTurn();
-			return false;
-		}
-	}
-	
-	public void nextTurn()
-	{
-		if(currentPlayer == playerCount-1)
-		{
-			currentPlayer = 0;
-		}
-		else if(currentPlayer > playerCount-1)
-		{
-			System.out.println("Error in nextTurn function.Setting current player to 1.");
-			currentPlayer =1;
-		}
-		else
-		{
-			currentPlayer++;
-		}
-		if(theGameBoard.allChosen())
-		{
-			gameOver = true;
-		}
-	}
-	
-	public void givePoints()
-	{
-			playerList.get(currentPlayer).addToTotal(currentTile.getPoints());
-	}
-	
-	public boolean getGameOver()
-	{
-		return gameOver;
-	}
-	
-	public String getCurrentPlayerScore()
-	{
-		return(Integer.toString(playerList.get(currentPlayer).getPointTotal()));
-	}
-	
-	public String getCurrentPlayer()
-	{
-		return Integer.toString(currentPlayer+1);
-	}
-	
-	
-	public ArrayList<String> topicNames;
-	/////////////////////////////////////////////////////////////////////////////////////////////
-	
-	
-	private void getNumberOfPlayers()
-	{
-		playerCount = TriviaGlue.getPlayerCount();
-	}
-	
-	public static void initializeTopics(){
-		app.initializeAllTopics();
-	}
-	
-	public void initializeGame()
-	{
-		theGameBoard = new TriviaBoard();
-		app.generateBoard(app, theGameBoard);
-		getNumberOfPlayers();
+		Button oneTopic = new Button("1");
+		oneTopic.setTranslateX(-100);
+		oneTopic.setTranslateY(-200);
+		Button twoTopics = new Button("2");
+		twoTopics.setTranslateX(-50);
+		twoTopics.setTranslateY(-200);
+		Button threeTopics = new Button("3");
+		threeTopics.setTranslateX(0);
+		threeTopics.setTranslateY(-200);
+		Button fourTopics = new Button("4");
+		fourTopics.setTranslateX(50);
+		fourTopics.setTranslateY(-200);
 		
-		playerList = new ArrayList<TriviaPlayer>();
-		for(int x = 1; x <playerCount+1;x++)
-		{
-			TriviaPlayer newPlayer = new TriviaPlayer();
-			playerList.add(newPlayer);
-		}
+		oneTopic.addEventFilter(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent mouseEvent) {
+				numberOfTopics = 1;
+				topicNumber = 1;
+				oneTopic.setDisable(true);
+				twoTopics.setDisable(true);
+				threeTopics.setDisable(true);
+				fourTopics.setDisable(true);
+				enableTheTopics();
+			}
+		});
+		twoTopics.addEventFilter(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent mouseEvent) {
+				numberOfTopics = 2;
+				topicNumber = 2;
+				oneTopic.setDisable(true);
+				twoTopics.setDisable(true);
+				threeTopics.setDisable(true);
+				fourTopics.setDisable(true);
+				enableTheTopics();
+			}
+		});
+		threeTopics.addEventFilter(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent mouseEvent) {
+				numberOfTopics = 3;
+				topicNumber = 3;
+				oneTopic.setDisable(true);
+				twoTopics.setDisable(true);
+				threeTopics.setDisable(true);
+				fourTopics.setDisable(true);
+				enableTheTopics();
+			}
+		});
+		fourTopics.addEventFilter(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent mouseEvent) {
+				numberOfTopics = 4;
+				topicNumber = 4;
+				oneTopic.setDisable(true);
+				twoTopics.setDisable(true);
+				threeTopics.setDisable(true);
+				fourTopics.setDisable(true);
+				enableTheTopics();
+			}
+		});
 		
-		topicNames = app.topicNames;
-	}
-	
-	
-	public void testGUI()
-	{
-		System.out.println("Question: " + currentQuestion);
-		System.out.println("Answer: " + currentAnswer);
-		System.out.println("Current Player: " + (currentPlayer+1));
-		for(int x = 0; x < playerCount;x++)
-		{
-			System.out.println("Player " + (x+1) + ": " + playerList.get(x).getPointTotal());
-		}
-	}
-	
-	/*
-	public static void main(String[] args)
-	{
+		Label prompt2 = new Label("Please Choose Your Topics: ");
+		prompt2.setFont(new Font(30));
+		prompt2.setTranslateY(-150);
 		
-		TriviaGame theGame = new TriviaGame();
-		theGame.initializeGame();
-		theGame.testGUI();
-		Scanner reader2 = new Scanner(System.in);
-		
-		while(!theGame.gameOver){
-		System.out.println("Choose X:");
-		int x = reader2.nextInt();
-		System.out.println("Choose Y:");
-		int y = reader2.nextInt();
-		//theGame.questionChosen(y,x);
-		theGame.questionChosen(x, y);
-		theGame.theGameBoard.displayBoard();
-		System.out.println("Current question: \n" + theGame.currentQuestion + "\n");
-		String tempAnswer;
-		System.out.println("\nInput answer: \n");
-		tempAnswer = reader2.next();
-		theGame.answerGiven(tempAnswer);
-		theGame.nextTurn();
-		theGame.testGUI();
+		int xValue = -150;
+		theTopics = new ArrayList<Button>();
+		categoryNames = new ArrayList<String>();
+		for(int i = 0; i <getAllTopicNames().size(); i++){
+			theTopics.add(new Button(getAllTopicNames().get(i)));
+			theTopics.get(i).setTranslateY(-100);
+			xValue +=50;
+			theTopics.get(i).setTranslateX(xValue);
+			Button btn = theTopics.get(i);
+			theTopics.get(i).addEventFilter(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
+				@Override
+				public void handle(MouseEvent mouseEvent) {
+					topicNumber--;
+					btn.setDisable(true);
+					categoryNames.add(btn.getText());
+					if(topicNumber==0){
+						enablePlayers();
+						disableTheTopics();
+					}
+				}
+			});
 		}
 		
-		System.out.println(theGame.whoIsWinning() + " wins!");
-	}*/
+		Label prompt3 = new Label("How many people will be playing?");
+		prompt3.setFont(new Font(30));
+		prompt3.setTranslateY(-50);
+		
+		int xValue2 = -150;
+		players = new ArrayList<Button>();
+		for(int i = 1; i <5; i++){
+			String playerString = "" +i;
+			players.add(new Button(playerString));
+			
+			xValue2 +=50;
+			players.get(i-1).setTranslateX(xValue2);
+			
+			int theplayer = i;
+			Button btn = players.get(i-1);
+			players.get(i-1).addEventFilter(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
+				@Override
+				public void handle(MouseEvent mouseEvent) {
+					playerCount = theplayer;
+					TriviaGlue.initializeGame();
+						triviaScreen();
+						thestage.close();
+				}
+			});
+		}		
+		
+		//disables buttons so that they won't be pushed ahead of time
+		disableTheTopics();
+		disablePlayers();
+		
+		root = new StackPane();
+		root.setStyle("-fx-background-color: lightsteelblue");
+		root.getChildren().add(info);
+		root.getChildren().add(list);
+		root.getChildren().add(prompt);
+		root.getChildren().add(oneTopic);
+		root.getChildren().add(twoTopics);
+		root.getChildren().add(threeTopics);
+		root.getChildren().add(fourTopics);
+		root.getChildren().add(prompt2);
+		for(int i =0; i <theTopics.size(); i++){
+			root.getChildren().add(theTopics.get(i));
+		}
+		root.getChildren().add(prompt3);
+		for(int i = 0; i < players.size(); i++){
+			root.getChildren().add(players.get(i));
+		}
+	}
 	
+	public void triviaScreen(){
+		//preparing the table of categories and buttons
+		Stage primaryStage = new Stage();
+		// loading images
+				//Image image = new Image("javaGameBackground.jpg");
+				
+				/*------------------------------------------------------------*/
+
+				// preparing background
+				//ImageView background = new ImageView();
+				//background.setImage(image);
+				
+				/*------------------------------------------------------------*/
+				GridPane gridpane = new GridPane();
+				//gridpane.setGridLinesVisible(true);
+				gridpane.setMaxSize(200,200);
+			    gridpane.setPadding(new Insets(getCategoryNum()));
+			    gridpane.setHgap(20);
+			    gridpane.setVgap(20);
+
+			    ArrayList<Label> categories = new ArrayList<Label>();
+			    ArrayList<ArrayList <Button>> buttons = new ArrayList<ArrayList <Button>>();
+			    
+			    createLabels(categories, gridpane);
+			    createButtons(buttons, gridpane, primaryStage);
+			    
+			    /*------------------------------------------------------------*/
+			    //Player's Turn
+			    playerTurn = new Label("Player " + getPlayerTurn());
+			    playerTurn.setFont(new Font(30));
+			    playerTurn.setTranslateY(-350);
+			    
+			    playerScore = new Label("Score: " + getPlayerScore());
+			    playerScore.setFont(new Font(30));
+			    playerScore.setTranslateY(-300);
+			    
+			    /*------------------------------------------------------------*/
+			    //adding stuff to show
+				root = new StackPane();
+				//root.getChildren().add(background);
+				root.getChildren().add(playerTurn);
+				root.getChildren().add(playerScore);
+				root.setStyle("-fx-background-color: lightsteelblue");
+				StackPane.setAlignment(gridpane, Pos.CENTER);
+				root.getChildren().add(gridpane);
+				
+				Scene triviaScene = new Scene(root, 1366, 768);
+				primaryStage.setScene(triviaScene);
+				primaryStage.show();
+	}
+	
+	public void start(Stage primaryStage) {
+		//initializing
+		primaryStage.setTitle("Initializing game...");
+		openingScreen(primaryStage);
+		
+	}
 }
