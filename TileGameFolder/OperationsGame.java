@@ -153,7 +153,7 @@ public class OperationsGame
             
             // Determine if operand is positive or negative randomly
             double signRand = (double) Math.round(r.nextDouble()*200.0 - 100.0);
-            if (signRand <= 50.0)
+            if (signRand <= 0.0)
                 randomOperand *= -1;
             
             // Create tile with randomly generated operand value
@@ -268,10 +268,10 @@ public class OperationsGame
         }
     }
     
-    // Return value of absolute difference between goal and solution
+    // Return percent error difference between goal and solution
     public double compareToGoal()
     {
-        return Math.abs(goal - solutionValue);
+        return (Math.abs(goal - solutionValue));
     }
     
     // Determine winner of round by checking goalCompare scores of each player
@@ -291,16 +291,18 @@ public class OperationsGame
             }
         }
         
-        System.out.println("The winner for this round is Player " + (winnerIndex+1) + "!");
+        System.out.println("The winner for round " + (round+1) + " is Player " + (winnerIndex+1) + "!");
     }
     
-    // Main method to play the game
+    // Console version of game
     public void playGame()
     {
         for (round = 0; round < 5; round++)
         {
             Scanner key = new Scanner(System.in);
-            System.out.println("-------------Round " + (round+1) + "-------------");
+            System.out.println("\n----------------------------------------------------------------------");
+            System.out.println("------------------------------Round " + (round+1) + "---------------------------------");
+            System.out.println("----------------------------------------------------------------------");
             
             // Generate round goal
             createAndSetRandomGoal();
@@ -333,21 +335,73 @@ public class OperationsGame
                 ArrayList<String> playerSolution = new ArrayList<String>(players[playerTurn].getHandSize());
                 for (int tilesPlayed = 0; tilesPlayed < players[playerTurn].getHandSize(); tilesPlayed++)
                 {
+                    int tilePicked;
+                    boolean continueToNextTile = false;
+                    
                     // Operand tile to be played
                     if ((tilesPlayed % 2) == 0)
                     {
-                        System.out.print("Please enter the index of the operand to play: ");
-                        int tilePicked = key.nextInt();
-                        String tileToSolution = players[playerTurn].checkOperandTile(tilePicked).getValueStr();
-                        playerSolution.add(tileToSolution);
+                        do{
+                            System.out.print("Please enter the index of the operand to play: ");
+                            tilePicked = key.nextInt();
+                            
+                            // Tile out of index
+                            if (tilePicked < 0 || tilePicked >= players[playerTurn].getOperandsHandSize())
+                            {
+                                System.out.println("Index out of bounds. Please choose another tile.");
+                            }
+                            // Selected tile has already been played
+                            else if (players[playerTurn].checkOperandTile(tilePicked).isPlayed())
+                            {
+                                System.out.println("Tile has already been played. Please choose another tile.");
+                            }
+                            // Selected tile has not been played yet; valid play
+                            else
+                            {
+                                // Set tile as played
+                                players[playerTurn].checkOperandTile(tilePicked).setTileAsPlayed();
+                                // Get String value of tile
+                                String tileToSolution = players[playerTurn].checkOperandTile(tilePicked).getValueStr();
+                                // Add to player solution
+                                playerSolution.add(tileToSolution);
+                                // Added a tile to solution; Continue iteration.
+                                continueToNextTile = true;
+                            }
+                        // Continue until player selects a tile that has not been played
+                        } while (!continueToNextTile); 
                     }
+                    
                     // Operator tile to be played
                     else
                     {
-                        System.out.print("Please enter the index of the operator to play: ");
-                        int tilePicked = key.nextInt();
-                        String tileToSolution = players[playerTurn].checkOperatorTile(tilePicked).getValueStr();
-                        playerSolution.add(tileToSolution);
+                        do{
+                            System.out.print("Please enter the index of the operator to play: ");
+                            tilePicked = key.nextInt();
+                            
+                            // Tile out of index
+                            if (tilePicked < 0 || tilePicked >= players[playerTurn].getOperatorsHandSize())
+                            {
+                                System.out.println("Index out of bounds. Please choose another tile.");
+                            }
+                            // Selected tile has already been played
+                            else if (players[playerTurn].checkOperatorTile(tilePicked).isPlayed())
+                            {
+                                System.out.println("Tile has already been played. Please choose another tile.");
+                            }
+                            // Selected tile has not been played yet; valid play
+                            else
+                            {
+                                // Set tile as played
+                                players[playerTurn].checkOperatorTile(tilePicked).setTileAsPlayed();
+                                // Get String value of tile
+                                String tileToSolution = players[playerTurn].checkOperatorTile(tilePicked).getValueStr();
+                                // Add to player solution
+                                playerSolution.add(tileToSolution);
+                                // Added a tile to solution; Continue iteration.
+                                continueToNextTile = true;
+                            }
+                        // Continue until player selects a tile that has not been played
+                        } while (!continueToNextTile); 
                     }
                 }
                 
@@ -360,11 +414,15 @@ public class OperationsGame
                 players[playerTurn].compareToGoal(solutionValue, goal);
                 System.out.println("Player " + (playerTurn+1) + "'s score: " + players[playerTurn].getGoalCompare());
                 
-                System.out.println("\n");
+                System.out.println("\n----------------------------------------------------------------------\n");
             }
             
             // Display winner
             determineRoundWinner();
+            
+            // Reset all tiles in hand as unplayed
+            for (playerTurn = 0; playerTurn < numPlayers; playerTurn++)
+                players[playerTurn].resetHand();
         }
         
         System.out.println("Thanks for playing! Hope you had fun!");

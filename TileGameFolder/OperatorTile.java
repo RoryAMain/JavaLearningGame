@@ -51,4 +51,9 @@ public class OperatorTile extends Tile
     {
         tilePlayed = true;
     }
+    
+    public void resetTile()
+    {
+        tilePlayed = false;
+    }
 }

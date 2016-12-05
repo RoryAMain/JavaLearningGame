@@ -38,8 +38,13 @@ public class OperandTile extends Tile
         return tilePlayed;
     }
     
-        public void setTileAsPlayed()
+    public void setTileAsPlayed()
     {
         tilePlayed = true;
+    }
+    
+    public void resetTile()
+    {
+        tilePlayed = false;
     }
 }

@@ -9,6 +9,9 @@ public abstract class Tile {
     // Abstract method to change tile as played
     abstract void setTileAsPlayed();
     
+    // Abstract method to reset tile as unplayed
+    abstract void resetTile();
+    
     // Abstract method to get double value of tile
     abstract double getValue();
     

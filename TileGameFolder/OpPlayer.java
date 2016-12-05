@@ -80,6 +80,15 @@ public class OpPlayer
         return operatorsHand.size() + operandsHand.size();
     }
     
+    ///////////// RESET HAND AS UNPLAYED /////////////
+    public void resetHand()
+    {
+        for (int i = 0; i < operatorsHand.size(); i++)
+            operatorsHand.get(i).resetTile();
+        for (int i = 0; i < operandsHand.size(); i++)
+            operandsHand.get(i).resetTile();
+    }
+    
     // The following methods may not be used, since GUI/display determines
     // which tiles are played and added to the solution for this game.
     
